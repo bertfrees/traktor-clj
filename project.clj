@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [overtone/midi-clj "0.5.0"]
+                 [clj-native "0.9.3"]
                  [com.github.kyleburton/clj-xpath "1.4.1"]]
   :source-paths ["src/main/clojure"]
   :test-paths ["src/test/clojure"])

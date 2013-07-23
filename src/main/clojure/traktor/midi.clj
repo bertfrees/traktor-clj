@@ -1,35 +1,25 @@
 (ns traktor.midi
-  (:use [overtone.midi]))
+  (:require [traktor.midi.native :as native]))
 
-(defn- traktor-virtual-output [] (midi-in (midi-find-device (midi-sources) "Traktor Virtual Output")))
+;; ------------ ;;
+;; MASTER TEMPO ;;
+;; ------------ ;;
 
 (defn master-tempo-watch
   ([callback]
-    (let [clock (traktor-virtual-output)
-          cancel #(let [transmitter (:transmitter clock)]
-                    (.close (.getReceiver transmitter))
-                    (.setReceiver transmitter nil))
-          timestamps (atom ())]
-      (midi-handle-events clock
-        (fn [msg]
-          (if (= (:status msg) :timing-clock)
-            (if (> (count @timestamps) 50)
-              (let [tempo (->> (- (:timestamp msg) (apply min @timestamps))
-                               (/ (count @timestamps))
-                               (* (/ 60000000 24))
-                               float)]
-                (callback tempo)
-                (swap! timestamps empty))
-              (swap! timestamps conj (:timestamp msg))))))
-      cancel))
+     (native/load)
+     (let [native-callback (native/double-callback callback)
+           native-cancel (native/master-tempo native-callback)]
+       (fn [] (native/invoke-callback native-cancel)
+         (native/discard-callback native-callback))))
   ([callback sensitivity]
-    (if (> sensitivity 0)
-      (let [tempo (atom 0)]
-        (master-tempo-watch
+     (if (> sensitivity 0)
+       (let [tempo (atom 0)]
+         (master-tempo-watch
           #(when (< sensitivity (Math/abs (- @tempo %)))
              (reset! tempo %)
-             (callback @tempo))))
-      (master-tempo-watch callback))))
+             (callback %))))
+       (master-tempo-watch callback))))
 
 (defn master-tempo-agent []
   (let [tempo (agent nil)]
