@@ -7,4 +7,5 @@
                  [clj-native "0.9.3"]
                  [com.github.kyleburton/clj-xpath "1.4.1"]]
   :source-paths ["src/main/clojure"]
+  :resource-paths ["src/main/resources"]
   :test-paths ["src/test/clojure"])
