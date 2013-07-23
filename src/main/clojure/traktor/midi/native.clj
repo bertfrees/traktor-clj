@@ -7,9 +7,12 @@
   (:libname "traktor_midi")
   (:callbacks
     (void-function [] void)
+    (char-function [char] void)
     (double-function [double] void))
   (:functions
-    (master-tempo master_tempo [double-function] void-function)))
+    (master-tempo master_tempo [double-function] void-function)
+    (track-title track_title [char char-function] void-function)
+    (track-artist track_artist [char char-function] void-function)))
 
 (def loaded (atom false))
 
@@ -26,6 +29,9 @@
   (let [native-callback (clj-native.callbacks/callback type callback)]
     (swap! active-callbacks conj native-callback)
     native-callback))
+
+(defn char-callback [callback]
+  (create-callback char-function callback))
 
 (defn double-callback [callback]
   (create-callback double-function callback))
